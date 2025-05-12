@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
 
 @Entity('contatos')
@@ -13,6 +13,7 @@ export class Contato {
     @Column()
     telefone!: string;
 
-    @OneToOne(() => User, user => user.contato)
+    @ManyToOne(() => User, user => user.contatos)
+    @JoinColumn({name: 'id_user'})
     user!: User;
 }

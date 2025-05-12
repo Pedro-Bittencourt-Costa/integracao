@@ -13,7 +13,7 @@ export class BaseController<T extends ObjectLiteral, CreateDto = T> {
     async findAll(req: Request, res: Response): Promise<Response> {
 
         try{
-            const item = this.service.findAll();
+            const item = await this.service.findAll();
             return res.status(200).json(item);
         }catch(error) {
             return res.status(400).send({ message: error instanceof Error ? error.message : 'Erro ao buscar item' })
@@ -24,7 +24,7 @@ export class BaseController<T extends ObjectLiteral, CreateDto = T> {
 
         try{
             const id = parseInt(req.params.id);
-            const item = this.service.findById(id);
+            const item = await this.service.findById(id);
             return res.status(200).json(item);
         }catch(error) {
             return res.status(400).send({ message: error instanceof Error ? error.message : 'Erro ao buscar item' })
@@ -34,8 +34,7 @@ export class BaseController<T extends ObjectLiteral, CreateDto = T> {
     async create(req: Request, res: Response): Promise<Response> {
 
         try{
-            const { body } = req.body;
-            const item = this.service.create(body);
+            const item = await this.service.create(req.body);
             return res.status(201).json(item);
         }catch(error) {
             return res.status(400).send({ message: error instanceof Error ? error.message : 'Erro ao buscar item' })
@@ -46,8 +45,7 @@ export class BaseController<T extends ObjectLiteral, CreateDto = T> {
 
         try{
             const id = parseInt(req.params.id);
-            const { body } = req.body;
-            this.service.update(id, body);
+            await this.service.update(id, req.body);
             return res.status(204).send();
         }catch(error) {
             return res.status(400).send({ message: error instanceof Error ? error.message : 'Erro ao buscar item' })
@@ -58,7 +56,7 @@ export class BaseController<T extends ObjectLiteral, CreateDto = T> {
 
         try{
             const id = parseInt(req.params.id);
-            this.service.delete(id);
+            await this.service.delete(id);
             return res.status(204).send();
         }catch(error) {
             return res.status(400).send({ message: error instanceof Error ? error.message : 'Erro ao buscar item' })

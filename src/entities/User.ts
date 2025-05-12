@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Contato } from "./Contato";
 
 @Entity('users')
@@ -22,7 +22,6 @@ export class User {
     @Column({ unique: true})
     matricula!: string;
 
-    @OneToOne(() => Contato, { cascade: true }) // cascade opcional
-    @JoinColumn()
-    contato!: Contato;
+    @OneToMany(() => Contato, c => c.user, { cascade: true }) // cascade opcional
+    contatos!: Contato[];
 }

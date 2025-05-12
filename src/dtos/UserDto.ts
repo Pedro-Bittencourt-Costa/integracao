@@ -22,8 +22,4 @@ export class UserDto {
     @IsNotEmpty()
     @IsString()
     matricula!: string;
-
-    @IsNotEmpty()
-    @IsNumber()
-    idContato!: number;
 }

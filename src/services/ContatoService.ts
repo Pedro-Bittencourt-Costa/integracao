@@ -15,6 +15,16 @@ export class ContatoService extends BaseService<Contato, ContatoDto>{
         this.userRepository = userRespository;
     }
 
+    findAll(relations?: string[]): Promise<Contato[]> {
+        return this.repository.findAll(['user'])
+    }
+
+    async findById(id: number): Promise<Contato> {
+        const contato = await this.repository.findById(id, ['user']);
+        if(!contato) throw new Error('Contato not fond');
+        return contato;
+    }
+
     async create(data: ContatoDto): Promise<Contato> {
         
         const emailExist = await this.repository.findByEmail(data.email);
@@ -37,9 +47,11 @@ export class ContatoService extends BaseService<Contato, ContatoDto>{
         const contatoExist = await this.repository.findById(id, ['user']);
         if(!contatoExist) throw new Error('Contato not found');
 
-        const emailExist = await this.repository.findByEmail(data.email);
-        if(emailExist) throw new Error('Email already exists');
-        contatoExist.email = data.email;
+        if(data.email !== contatoExist.email) {
+            const emailExist = await this.repository.findByEmail(data.email);
+            if(emailExist) throw new Error('Email already exists');
+            contatoExist.email = data.email;
+        }
 
         const userExist = await this.userRepository.findById(data.idUser);
         if(!userExist) throw new Error('User not found');

@@ -8,27 +8,31 @@ import { UserDto } from "../dtos/UserDto";
 export class UserService extends BaseService<User, UserDto> {
 
     public repository: UserRepository;
-    public contatoRepository: ContatoRepository;
 
-    constructor(repository: UserRepository, contatoRepository: ContatoRepository) {
+    constructor(repository: UserRepository) {
         super(repository);
         this.repository = repository;
-        this.contatoRepository = contatoRepository;
+    }
+
+    findAll(): Promise<User[]> {
+        return this.repository.findAll(['contatos'])
+    }
+
+    async findById(id: number): Promise<User> {
+        const user = await this.repository.findById(id, ['contatos']);
+        if(!user) throw new Error('user not found');
+        return user;
     }
 
     async create(data: UserDto): Promise<User> {
        const matriculaExist = await this.repository.findByMatricula(data.matricula);
        if(matriculaExist) throw new Error('Matricula already exists');
 
-       const contatoExist = await this.contatoRepository.findById(data.idContato);
-       if(!contatoExist) throw new Error('Contato not found');
-
        data.senha = await hash(data.senha, 10);
 
        const user = new User();
        user.nome = data.nome;
        user.sobrenome = data.sobrenome;
-       user.contato = contatoExist;
        user.senha = data.senha;
        user.dataNascimento = data.dataNascimento;
        user.matricula = data.matricula;
@@ -42,13 +46,11 @@ export class UserService extends BaseService<User, UserDto> {
         const userExist = await this.repository.findById(id);
         if(!userExist) throw new Error('User not found');
 
-        const matriculaExist = await this.repository.findByMatricula(data.matricula);
-        if(matriculaExist) throw new Error('Matricula already exists');
-        userExist.matricula = data.matricula;
-
-        const contatoExist = await this.contatoRepository.findById(data.idContato);
-        if(!contatoExist) throw new Error('Contato not found');
-        userExist.contato = contatoExist;
+        if(data.matricula !== userExist.matricula) {
+            const matriculaExist = await this.repository.findByMatricula(data.matricula);
+            if(matriculaExist) throw new Error('Matricula already exists');
+            userExist.matricula = data.matricula;
+        }
 
         data.senha = await hash(data.senha, 10);
 
